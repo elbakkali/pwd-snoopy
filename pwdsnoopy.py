@@ -7,7 +7,6 @@ import os
 ssids = []
 passwords = []
 credentials = []
-
 osName = platform.system()
 
 if osName == 'Linux':
@@ -26,11 +25,13 @@ if osName == 'Linux':
         credentials.append({'ssid': val[0], 'password': val[1]})
 
 else:
-    exit('This script does not currently support your OS')
+    exit('This os is currently not supported.')
+
+if not result:
+    exit('There are currently no saved WIFI passwords saved on this machine.')
 
 longestSsid = len(max(ssids, key=len))
 longestpwd = len(max(passwords, key=len))
-
 tableHeader = "SSID" + (" " * (longestSsid - len('SSUD') + 1)) + "| Password"
 
 print(tableHeader)
