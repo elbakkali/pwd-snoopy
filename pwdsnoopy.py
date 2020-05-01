@@ -8,6 +8,7 @@ ssids = []
 passwords = []
 credentials = []
 osName = platform.system()
+result = None
 
 if osName == 'Linux':
     if os.geteuid() != 0:
@@ -24,10 +25,20 @@ if osName == 'Linux':
         passwords.append(val[1])
         credentials.append({'ssid': val[0], 'password': val[1]})
 
+elif osName == 'Windows':
+    data = subprocess.check_output(['netsh', 'wlan', 'show', 'profiles']).decode('utf-8', errors="backslashreplace").split('\n')
+    ssids = [i.split(":")[1][1:-1] for i in data if "All User Profile" in i]
+
+    for i in ssids:
+        data = subprocess.check_output(['netsh', 'wlan', 'show', 'profile', i, 'key=clear']).decode('utf-8', errors="backslashreplace").split('\n')
+        pwd = [b.split(":")[1][1:-1] for b in data if "Key Content" in b][0]
+        passwords.append(pwd)
+        credentials.append({'ssid': i, 'password': pwd})
+
 else:
     exit('This os is currently not supported.')
 
-if not result:
+if not credentials:
     exit('There are currently no saved WIFI passwords saved on this machine.')
 
 longestSsid = len(max(ssids, key=len))
